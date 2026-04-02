@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Pencarian Kata KBBI</title>
     <style>
@@ -8,81 +7,81 @@
             font-family: Arial;
             padding: 20px;
         }
-
         input {
             padding: 10px;
             width: 300px;
             font-size: 16px;
         }
-
         ul {
             margin-top: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding-left: 20px;
         }
-
         li {
-            margin: 4px 0;
+            margin: 5px 0;
         }
     </style>
 </head>
-
 <body>
 
-    <h2>Pencarian Kata KBBI (Realtime)</h2>
+<h2>Pencarian Kata KBBI (Realtime)</h2>
 
-    <input type="text" id="pola" placeholder="Contoh: .a | b. | a.z" autofocus>
+<input type="text" id="pola" placeholder="Contoh: .a | b. | a.z">
 
-    <ul id="hasil"></ul>
+<input type="number" id="max" value="12">
 
-    <script>
-        let data = [];
+<ul id="hasil"></ul>
 
-        // =========================
-        // LOAD DATA JSON
-        // =========================
-        fetch('data.json')
-            .then(res => res.json())
-            .then(json => {
-                data = json;
-            });
+<script>
+let data = [];
 
-        // =========================
-        // KONVERSI POLA ('.' → '.*')
-        // =========================
-        function polaKeRegex(pola) {
-            let regexStr = pola.replaceAll(".", ".*");
-            return new RegExp("^" + regexStr + "$");
-        }
+// =========================
+// LOAD DATA JSON
+// =========================
+fetch('data.json')
+.then(res => res.json())
+.then(json => {
+    data = json;
+});
 
-        // =========================
-        // REALTIME SEARCH
-        // =========================
-        document.getElementById("pola").addEventListener("input", function () {
-            let pola = this.value.toLowerCase().trim();
+// =========================
+// KONVERSI POLA
+// =========================
+function polaKeRegex(pola) {
+    let regexStr = pola.replaceAll(".", ".*");
+    return new RegExp("^" + regexStr + "$");
+}
 
-            let ul = document.getElementById("hasil");
-            ul.innerHTML = "";
+// =========================
+// PENCARIAN REALTIME
+// =========================
+document.getElementById("pola").addEventListener("input", function() {
+    let pola = this.value.toLowerCase();
+    let max = parseInt(document.getElementById("max").value);
 
-            if (pola.length === 0) return;
+    if (pola.length === 0) {
+        document.getElementById("hasil").innerHTML = "";
+        return;
+    }
 
-            let regex = polaKeRegex(pola);
+    let regex = polaKeRegex(pola);
 
-            let hasil = data.filter(kata => regex.test(kata));
+    let hasil = data.filter(kata =>
+        regex.test(kata) && kata.length <= max
+    );
 
-            // urutkan dari kata terpanjang
-            hasil.sort((a, b) => b.length - a.length);
+    // urutkan dari panjang terbesar
+    hasil.sort((a, b) => b.length - a.length);
 
-            // tampilkan maksimal 100
-            hasil.slice(0, 100).forEach(kata => {
-                let li = document.createElement("li");
-                li.textContent = kata;
-                ul.appendChild(li);
-            });
-        });
-    </script>
+    // tampilkan
+    let ul = document.getElementById("hasil");
+    ul.innerHTML = "";
+
+    hasil.slice(0, 10).forEach(kata => {
+        let li = document.createElement("li");
+        li.textContent = kata;
+        ul.appendChild(li);
+    });
+});
+</script>
 
 </body>
-
 </html>
