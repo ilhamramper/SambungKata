@@ -30,7 +30,7 @@
 
 <input type="text" id="pola" placeholder="Contoh: .a | b. | a.z" autofocus>
 
-<input type="number" id="max" value="12" hidden>
+<input type="number" id="max" value="15" hidden>
 
 <ul id="hasil"></ul>
 
@@ -73,7 +73,7 @@ document.getElementById("pola").addEventListener("input", function() {
     );
 
     // urutkan dari panjang terbesar
-    hasil.sort((a, b) => a.length - b.length);
+    hasil.sort((a, b) => b.length - a.length);
 
     // tampilkan
     let ul = document.getElementById("hasil");
