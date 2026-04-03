@@ -12,8 +12,9 @@
         input,
         button {
             padding: 10px;
-            width: 100px;
+            width: 200px;
             font-size: 16px;
+            margin: 5px 0;
         }
 
         ul {
@@ -25,6 +26,7 @@
 
         li {
             margin: 4px 0;
+            cursor: pointer;
         }
 
         .dipakai {
@@ -38,9 +40,9 @@
 
     <h2>Pencarian Kata KBBI (Realtime)</h2>
 
-    <input type="text" id="pola" placeholder="Contoh: .a | b. | a.z" autofocus>
+    <input type="text" id="pola" placeholder="Contoh: .a | b. | a.z" autofocus><br>
 
-    <input type="number" id="max" placeholder="Panjang huruf dlm 1 kalimat" value="15">
+    <input type="number" id="max" placeholder="Panjang huruf" value="15"><br>
 
     <button onclick="resetKata()">Reset Kata</button>
 
@@ -48,6 +50,7 @@
 
     <script>
         let data = [];
+        let kataDipakai = new Set(); // menyimpan kata yang sudah dipilih
 
         // =========================
         // LOAD DATA JSON
@@ -87,7 +90,6 @@
             // urutkan dari panjang terbesar
             hasil.sort((a, b) => b.length - a.length);
 
-            // tampilkan
             let ul = document.getElementById("hasil");
             ul.innerHTML = "";
 
@@ -95,9 +97,20 @@
                 let li = document.createElement("li");
                 li.textContent = kata;
 
-                // klik → tandai merah
+                // jika sudah pernah dipilih → beri warna merah
+                if (kataDipakai.has(kata)) {
+                    li.classList.add("dipakai");
+                }
+
+                // event klik
                 li.addEventListener("click", function () {
-                    this.classList.toggle("dipakai");
+                    if (kataDipakai.has(kata)) {
+                        kataDipakai.delete(kata);
+                        this.classList.remove("dipakai");
+                    } else {
+                        kataDipakai.add(kata);
+                        this.classList.add("dipakai");
+                    }
                 });
 
                 ul.appendChild(li);
@@ -108,6 +121,8 @@
         // RESET
         // =========================
         function resetKata() {
+            kataDipakai.clear();
+
             document.querySelectorAll("li").forEach(li => {
                 li.classList.remove("dipakai");
             });
