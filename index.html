@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Pencarian Kata KBBI</title>
     <style>
@@ -7,11 +8,14 @@
             font-family: Arial;
             padding: 20px;
         }
-        input {
+
+        input,
+        button {
             padding: 10px;
             width: 300px;
             font-size: 16px;
         }
+
         ul {
             margin-top: 20px;
             max-height: 300px;
@@ -22,70 +26,94 @@
         li {
             margin: 4px 0;
         }
+
+        .dipakai {
+            color: red;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
 
-<h2>Pencarian Kata KBBI (Realtime)</h2>
+    <h2>Pencarian Kata KBBI (Realtime)</h2>
 
-<input type="text" id="pola" placeholder="Contoh: .a | b. | a.z" autofocus>
+    <input type="text" id="pola" placeholder="Contoh: .a | b. | a.z" autofocus>
 
-<input type="number" id="max" value="15" hidden>
+    <input type="number" id="max" placeholder="Contoh: panjang huruf dlm 1 kalimat" value="15">
 
-<ul id="hasil"></ul>
+    <button onclick="resetKata()">Reset Kata</button>
 
-<script>
-let data = [];
+    <ul id="hasil"></ul>
 
-// =========================
-// LOAD DATA JSON
-// =========================
-fetch('data.json')
-.then(res => res.json())
-.then(json => {
-    data = json;
-});
+    <script>
+        let data = [];
 
-// =========================
-// KONVERSI POLA
-// =========================
-function polaKeRegex(pola) {
-    let regexStr = pola.replaceAll(".", ".*");
-    return new RegExp("^" + regexStr + "$");
-}
+        // =========================
+        // LOAD DATA JSON
+        // =========================
+        fetch('data.json')
+            .then(res => res.json())
+            .then(json => {
+                data = json;
+            });
 
-// =========================
-// PENCARIAN REALTIME
-// =========================
-document.getElementById("pola").addEventListener("input", function() {
-    let pola = this.value.toLowerCase();
-    let max = parseInt(document.getElementById("max").value);
+        // =========================
+        // KONVERSI POLA
+        // =========================
+        function polaKeRegex(pola) {
+            let regexStr = pola.replaceAll(".", ".*");
+            return new RegExp("^" + regexStr + "$");
+        }
 
-    if (pola.length === 0) {
-        document.getElementById("hasil").innerHTML = "";
-        return;
-    }
+        // =========================
+        // PENCARIAN REALTIME
+        // =========================
+        document.getElementById("pola").addEventListener("input", function () {
+            let pola = this.value.toLowerCase();
+            let max = parseInt(document.getElementById("max").value);
 
-    let regex = polaKeRegex(pola);
+            if (pola.length === 0) {
+                document.getElementById("hasil").innerHTML = "";
+                return;
+            }
 
-    let hasil = data.filter(kata =>
-        regex.test(kata) && kata.length <= max
-    );
+            let regex = polaKeRegex(pola);
 
-    // urutkan dari panjang terbesar
-    hasil.sort((a, b) => b.length - a.length);
+            let hasil = data.filter(kata =>
+                regex.test(kata) && kata.length <= max
+            );
 
-    // tampilkan
-    let ul = document.getElementById("hasil");
-    ul.innerHTML = "";
+            // urutkan dari panjang terbesar
+            hasil.sort((a, b) => b.length - a.length);
 
-    hasil.slice(0, 100).forEach(kata => {
-        let li = document.createElement("li");
-        li.textContent = kata;
-        ul.appendChild(li);
-    });
-});
-</script>
+            // tampilkan
+            let ul = document.getElementById("hasil");
+            ul.innerHTML = "";
+
+            hasil.slice(0, 100).forEach(kata => {
+                let li = document.createElement("li");
+                li.textContent = kata;
+
+                // klik → tandai merah
+                li.addEventListener("click", function () {
+                    this.classList.toggle("dipakai");
+                });
+
+                ul.appendChild(li);
+            });
+        });
+
+        // =========================
+        // RESET
+        // =========================
+        function resetKata() {
+            document.querySelectorAll("li").forEach(li => {
+                li.classList.remove("dipakai");
+            });
+        }
+    </script>
 
 </body>
+
 </html>
