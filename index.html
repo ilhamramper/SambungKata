@@ -28,10 +28,10 @@
             padding-left: 20px;
         }
 
+        /* Jarak diperkecil agar list tampil rapat */
         li {
-            margin: 4px 0;
+            margin: 2px 0; 
             cursor: pointer;
-            padding: 4px;
         }
 
         li:hover {
@@ -54,7 +54,7 @@
 
     <script>
         let data = [];
-        let kataDipakai = new Set(); // menyimpan kata yang sudah dicopy/disembunyikan
+        let kataDipakai = new Set(); 
 
         // =========================
         // LOAD DATA JSON
@@ -87,11 +87,10 @@
 
             let regex = polaKeRegex(pola);
 
-            // Filter kata yang cocok, panjangnya sesuai, dan BELUM ditekan/dicopy
             let hasil = data.filter(kata =>
                 regex.test(kata) && 
                 kata.length <= max &&
-                !kataDipakai.has(kata) // Memastikan kata yang ada di list belum pernah dipakai
+                !kataDipakai.has(kata) 
             );
 
             // urutkan dari panjang terbesar
@@ -100,8 +99,8 @@
             let ul = document.getElementById("hasil");
             ul.innerHTML = "";
 
-            // Menampilkan SEMUA hasil (slice dihapus)
-            hasil.forEach(kata => {
+            // Dibatasi maksimal 5000 data agar web tidak lag
+            hasil.slice(0, 5000).forEach(kata => {
                 let li = document.createElement("li");
                 li.textContent = kata;
 
@@ -112,7 +111,7 @@
                         // Masukkan ke Set kataDipakai agar disembunyikan
                         kataDipakai.add(kata);
                         
-                        // Hapus elemen li ini langsung dari tampilan tanpa perlu render ulang seluruh list
+                        // Hapus elemen li ini langsung dari tampilan
                         this.remove();
                     }).catch(err => {
                         console.error('Gagal menyalin teks: ', err);
@@ -128,11 +127,7 @@
         // RESET
         // =========================
         function resetKata() {
-            // Kosongkan memori kata yang disembunyikan
             kataDipakai.clear();
-
-            // Panggil ulang event "input" pada kolom pencarian 
-            // agar kata yang tadi disembunyikan langsung muncul kembali sesuai pola yang sedang diketik
             document.getElementById("pola").dispatchEvent(new Event('input'));
         }
     </script>
