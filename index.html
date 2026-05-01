@@ -16,10 +16,14 @@
             font-size: 16px;
             margin: 5px 0;
         }
+        
+        #pola {
+            width: 200px;
+        }
 
         ul {
             margin-top: 20px;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             padding-left: 20px;
         }
@@ -27,11 +31,11 @@
         li {
             margin: 4px 0;
             cursor: pointer;
+            padding: 4px;
         }
 
-        .dipakai {
-            color: red;
-            font-weight: bold;
+        li:hover {
+            background-color: #f0f0f0;
         }
     </style>
 </head>
@@ -50,7 +54,7 @@
 
     <script>
         let data = [];
-        let kataDipakai = new Set(); // menyimpan kata yang sudah dipilih
+        let kataDipakai = new Set(); // menyimpan kata yang sudah dicopy/disembunyikan
 
         // =========================
         // LOAD DATA JSON
@@ -83,8 +87,11 @@
 
             let regex = polaKeRegex(pola);
 
+            // Filter kata yang cocok, panjangnya sesuai, dan BELUM ditekan/dicopy
             let hasil = data.filter(kata =>
-                regex.test(kata) && kata.length <= max
+                regex.test(kata) && 
+                kata.length <= max &&
+                !kataDipakai.has(kata) // Memastikan kata yang ada di list belum pernah dipakai
             );
 
             // urutkan dari panjang terbesar
@@ -93,24 +100,24 @@
             let ul = document.getElementById("hasil");
             ul.innerHTML = "";
 
-            hasil.slice(0, 100).forEach(kata => {
+            // Menampilkan SEMUA hasil (slice dihapus)
+            hasil.forEach(kata => {
                 let li = document.createElement("li");
                 li.textContent = kata;
 
-                // jika sudah pernah dipilih → beri warna merah
-                if (kataDipakai.has(kata)) {
-                    li.classList.add("dipakai");
-                }
-
                 // event klik
                 li.addEventListener("click", function () {
-                    if (kataDipakai.has(kata)) {
-                        kataDipakai.delete(kata);
-                        this.classList.remove("dipakai");
-                    } else {
+                    // Copy ke clipboard
+                    navigator.clipboard.writeText(kata).then(() => {
+                        // Masukkan ke Set kataDipakai agar disembunyikan
                         kataDipakai.add(kata);
-                        this.classList.add("dipakai");
-                    }
+                        
+                        // Hapus elemen li ini langsung dari tampilan tanpa perlu render ulang seluruh list
+                        this.remove();
+                    }).catch(err => {
+                        console.error('Gagal menyalin teks: ', err);
+                        alert("Gagal menyalin teks. Pastikan browser mengizinkan akses clipboard.");
+                    });
                 });
 
                 ul.appendChild(li);
@@ -121,11 +128,12 @@
         // RESET
         // =========================
         function resetKata() {
+            // Kosongkan memori kata yang disembunyikan
             kataDipakai.clear();
 
-            document.querySelectorAll("li").forEach(li => {
-                li.classList.remove("dipakai");
-            });
+            // Panggil ulang event "input" pada kolom pencarian 
+            // agar kata yang tadi disembunyikan langsung muncul kembali sesuai pola yang sedang diketik
+            document.getElementById("pola").dispatchEvent(new Event('input'));
         }
     </script>
 
